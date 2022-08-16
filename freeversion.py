@@ -11,7 +11,10 @@ import yfinance as yf
 def trade():
     #get the current date 
     my_date = date.today()
-    yesterday =  my_date - timedelta(days=1)
+    
+    diff = max(1, (my_date.weekday() + 6) % 7 - 3)
+    #calculate yesterda as business day
+    yes_bid = my_date - timedelta(days=diff)
 
     tradeing_client = api.REST(config.API_Key, config.API_Secret, config.URL_ENDPT)
     BASE_URL = config.URL_ENDPT
@@ -28,23 +31,25 @@ def trade():
             print(f"Symbol {symbol} does not have an active trade will look for trade to enter")
             
             #get price data from alpaca api
-            bars = yf.download(tickers = symbol,start=yesterday, end=my_date, interval = '5m', rounding = True )
+            bars = yf.download(tickers = symbol,start=yes_bid, end=my_date, interval = '5m', rounding = True )
             bars.head()
             # #put bars into np array
-            price = [bar for bar in bars['Close'] if bar != 0]
+            price = [bar for bar in bars['Close'] if bar != "NaN"]
             prices = np.array(price)
-            open_bar = [bar for bar in bars['Open'] if bar != 0]
+            open_bar = [bar for bar in bars['Open'] if bar != "NaN"]
             opens = np.array(open_bar)
-            high_bar = [bar for bar in bars['High'] if bar != 0]
+            high_bar = [bar for bar in bars['High'] if bar != "NaN"]
             highs = np.array(high_bar)
-            low_bar = [bar for bar in bars['Low'] if bar != 0]
+            low_bar = [bar for bar in bars['Low'] if bar != "NaN"]
             lows = np.array(low_bar)
-            volume_bar = [bar for bar in bars['Volume'] if bar >= 0]
+            volume_bar = [bar for bar in bars['Volume'] if bar != "NaN"]
             volumes = np.array(volume_bar)
             #define the TA-LIB tools that I want to use to base my strat around 
-            RSI = talib.RSI(prices,14)
-            SMA_20 = talib.SMA(prices, timeperiod=20)
-            SMA_50 = talib.SMA(prices, timeperiod=50)
+            print("go here")
+            if len(prices) > 51:
+                RSI = talib.RSI(prices,14)
+                SMA_20 = talib.SMA(prices, timeperiod=20)
+                SMA_50 = talib.SMA(prices, timeperiod=50)
             engulfing = talib.CDLENGULFING(opens, highs, lows, prices)
             
             # #Get the value of the most recent element in the np array.
@@ -95,7 +100,7 @@ def trade():
                     
         
     print("Code Completed")
-sc.every(300).seconds.do(trade)
+sc.every(1).seconds.do(trade)
 
 while True:
     sc.run_pending()
