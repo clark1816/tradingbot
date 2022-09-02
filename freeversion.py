@@ -8,6 +8,7 @@ import numpy as np
 import schedule as sc
 import time
 import yfinance as yf
+import sqlite3
 def trade():
     #get the current date 
     my_date = date.today()
