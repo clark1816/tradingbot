@@ -6,12 +6,12 @@ from fastapi.responses import HTMLResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import sqlite3, config
+import config
 import alpaca_trade_api as api
 from alpaca_trade_api.rest import REST, TimeFrame, TimeFrameUnit
 import psycopg2
 import psycopg2.extras
-from flask import Flask, request, render_template
+
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
