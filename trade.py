@@ -7,18 +7,19 @@ import pytz
 import numpy as np
 import schedule as sc
 import time
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import pandas_market_calendars as mcal
 import datetime
+
 #connect to db
-connection = sqlite3.connect(config.DB_FILE)
-connection.row_factory = sqlite3.Row
-cursor = connection.cursor()
+connection = psycopg2.connect(port = config.DB_PORT,host=config.DB_HOST, database=config.DB_NAME, user=config.DB_USER, password=config.DB_PASS)
+cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 def trade():
     #fetch all the stock symbols from the db
     cursor.execute("""
-    SELECT symbol from stock 
+    select symbol from watchlist 
     """)
     rows = cursor.fetchall()
     db_symbols = [row['symbol'] for row in rows]
@@ -118,10 +119,10 @@ exchange = (nyse.valid_days(start_date = my_date, end_date = my_date))
 if exchange.size > 0:
     e = datetime.datetime.now()    
     current_time = (e.strftime("%I:%M:%S %p"))
-    while current_time < '04:30:00 PM' or current_time > '9:30 AM':
-        print(current_time)
+    while current_time > '04:30:00 PM' or current_time > '9:30 AM':
+        #print(current_time)
         sc.run_pending()
-        time.sleep(300)
+        time.sleep(290)
          
     else:
         print("market currently not open")
