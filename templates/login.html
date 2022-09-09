@@ -1,19 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login Page</title>
-</head>
-<body bgcolor="orange">
-
-<form action="/form_login" method="post">
-  <h2></h2>Username:<br>
-  <input type="text" name='username'><br>
-  Password:<br>
-  <input  name='password' ><br><br>
-<input type="submit" value="Login">
-</form>
-
-
-</body>
+<html>
+    <head>
+        <title>Basic Form</title>
+        <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+    </head>
+    <body>
+        <center><h1>Lets Trade Login Page</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <label for="username">Username:</label><br>
+            <input type="text" name="username"><br>
+            <label for="password">Password:</label><br>
+            <input type="text" name="password"><br>
+            <input type="submit" value="Submit"></center>
+        </form>
+    </body>
 </html>
