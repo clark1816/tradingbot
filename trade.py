@@ -89,8 +89,8 @@ def trade():
 
 
             #time to write the code that will conduct autotrading for me
-            if current_price < current_SMA_20:
-                if current_price> current_SMA_50 :
+            if current_price > current_SMA_20:
+                if current_price > current_SMA_50 :
                     if current_RSI > 40:
                         if current_engulfing > 0:
                             print(f"Entering a Trade with stock {symbol} at price {current_price}")
@@ -119,7 +119,7 @@ exchange = (nyse.valid_days(start_date = my_date, end_date = my_date))
 if exchange.size > 0:
     e = datetime.datetime.now()    
     current_time = (e.strftime("%I:%M:%S %p"))
-    while current_time > '04:30:00 PM' or current_time > '9:30 AM':
+    while current_time < '04:00:00 PM' or current_time > '9:30 AM':
         #print(current_time)
         sc.run_pending()
         time.sleep(290)
