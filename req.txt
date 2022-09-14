@@ -1,0 +1,6 @@
+alpaca-trade-api==2.3.0
+DateTime==4.5
+psycopg2-binary==2.9.3
+pandas-market-calendars==3.4
+schedule==1.1.0
+pytz==2021.3

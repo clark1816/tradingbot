@@ -3,7 +3,6 @@ import talib
 from alpaca_trade_api.rest import REST, TimeFrame, TimeFrameUnit
 import config
 from datetime import datetime, date, timedelta
-import pytz
 import numpy as np
 import schedule as sc
 import time
@@ -11,6 +10,10 @@ import psycopg2
 import psycopg2.extras
 import pandas_market_calendars as mcal
 import datetime
+import pytz
+
+timeZ_Ny = pytz.timezone('America/New_York')
+UTC = pytz.utc
 
 #connect to db
 connection = psycopg2.connect(port = config.DB_PORT,host=config.DB_HOST, database=config.DB_NAME, user=config.DB_USER, password=config.DB_PASS)
@@ -116,17 +119,26 @@ sc.every(10).seconds.do(trade)
 nyse = mcal.get_calendar('NYSE')
 my_date = date.today()
 exchange = (nyse.valid_days(start_date = my_date, end_date = my_date))
-if exchange.size > 0:
-    e = datetime.datetime.now()    
+while exchange.size > 0:
+    dt_Ny = datetime.datetime.now(timeZ_Ny)
+    e = dt_Ny#datetime.datetime.now()    
     current_time = (e.strftime("%I:%M:%S %p"))
-    while current_time < '04:00:00 PM' or current_time > '9:30 AM':
+    m1 = current_time
+
+    m2 = datetime.datetime.strptime(m1, "%I:%M:%S %p").time()
+    #type cast variable to a string becase I can compare a string variable and time variable
+    m3 = str(m2)
+    print(m3)
+    
+    if m3 < '16:39:40' and m3 > '09:39:40':
         #print(current_time)
         sc.run_pending()
-        time.sleep(290)
-         
+        time.sleep(290)    
     else:
         print("market currently not open")
-
+        time.sleep(30) 
+        
+        
 
     
 
