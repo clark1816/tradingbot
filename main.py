@@ -11,7 +11,10 @@ import alpaca_trade_api as api
 from alpaca_trade_api.rest import REST, TimeFrame, TimeFrameUnit
 import psycopg2
 import psycopg2.extras
-
+from matplotlib import *
+import yfinance as yf
+import numpy as np
+import backtrader as bt
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -130,20 +133,46 @@ async def stock_detail(request: Request, symbol):
     return templates.TemplateResponse("stock_detail.html", {"request": request, "stock": rows})
 
 
+@app.post("/backtest")
+async def index(request: Request, symbol: str = Form(...)):
+    ticker = symbol
+    class MyStrategy(bt.Strategy):
+
+        def __init__(self):
+                df =yf.download(tickers=ticker, start='2021-01-01', interval="1d",rounding = True)
+                df.head()
+                price = [bar for bar in df['Close'] if bar != "NaN"]
+                prices = np.array(price)
+                length_price = (len(prices))-1
+                current_price = prices[length_price]
+                for x in range(len(price)):
+                    if x >= 4:
+                        if price[x] > price[x-1]+4 and price[x-1] > price[x-2]+4 and price[x-2] > price[x-3]:
+                            self.entry = True
+
+        def next(self):
+            if self.entry == True:
+                self.buy_bracket(limitprice=current_price*.05+current_price, price=current_price, stopprice=current_price-current_price*.025)
+                pass
+        
+    cerebro = bt.Cerebro()
+
+    df =yf.download(ticker, start='2021-01-01', interval="1d",rounding = True)
+    df.head()
+    price = [bar for bar in df['Close'] if bar != "NaN"]
+    prices = np.array(price)
+    length_price = (len(prices))-1
+    current_price = prices[length_price]
+    print(current_price)
+    print(prices[length_price-1])
+    feed = bt.feeds.PandasData(dataname=df)
+
+    cerebro.adddata(feed)
+    cerebro.addstrategy(MyStrategy)
+    cerebro.run()
+    cerebro.plot()
+
+    return templates.TemplateResponse("backtest.html", {"request": request, "symbol":symbol})
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-#print("Code Completed")
