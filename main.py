@@ -15,6 +15,7 @@ from matplotlib import *
 import yfinance as yf
 import numpy as np
 import backtrader as bt
+from matplotlib import warnings
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
