@@ -54,7 +54,12 @@
                     {% endfor %}
                 </tbody>
                 </table>
-        
+            <h2>Back Testing</h2>
+            <form action="/backtest" method="post">
+            <label for="fname">stock symbol:</label>
+            <input type="text" id="fname" name="symbol"><br><br>
+            <input type="submit">
+            </form>
     </div>
     </body>
 </html>
