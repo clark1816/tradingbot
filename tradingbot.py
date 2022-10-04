@@ -9,6 +9,23 @@ import schedule as sc
 import time
 import yfinance as yf
 import sqlite3
+connection = sqlite3.connect(config.DB_FILE)
+
+connection.row_factory = sqlite3.Row
+
+cursor = connection.cursor()
+cursor.execute("""
+    SELECT symbol FROM watchlist
+""")
+
+rows = cursor.fetchall()
+symbols = []
+stock_dict = {}
+for row in rows:
+    symbol = row['symbol']
+    symbols.append(symbol)
+
+
 def trade():
     #get the current date 
     my_date = date.today()
@@ -20,15 +37,18 @@ def trade():
     tradeing_client = api.REST(config.API_Key, config.API_Secret, config.URL_ENDPT)
     BASE_URL = config.URL_ENDPT
     x = 1
-    orders = tradeing_client.list_positions()  
-    #for order in orders:
-        # print(order.symbol)
-        # print(f"Already a trade open for: {order.symbol} skipping")
-    #list comprhension is not easy
-    order_symbols = [order.symbol for order in orders if x == 1]
-    symbols = ["BBBY", "FUBO", "AMC", "AMD", "CCL"]
+    #get active postions 
+    cursor.execute("""
+    SELECT stock FROM assets
+    """)
+    assets = []
+    stock_assets = cursor.fetchall()
+    for row in stock_assets:
+        asset = row['stock']
+        assets.append(asset)
+
     for symbol in symbols:
-        if symbol not in order_symbols:
+        if symbol not in assets:
             print(f"Symbol {symbol} does not have an active trade will look for trade to enter")
             
             #get price data from alpaca api
@@ -77,34 +97,30 @@ def trade():
 
 
             #time to write the code that will conduct autotrading for me
-            if current_price < current_SMA_20:
-                if current_price> current_SMA_50 :
-                    if current_RSI > 40:
-                        if current_engulfing > 0:
-                            print(f"Entering a Trade with stock {symbol} at price {current_price}")
-                            tradeing_client.submit_order(
-                                symbol=symbol,
-                                side='buy',
-                                type='market',
-                                qty='1',
-                                time_in_force='day',
-                                order_class='bracket',
-                                take_profit=dict(
-                                    limit_price=take_profit,
-                                ),
-                                stop_loss=dict(
-                                    stop_price=lost_profit,
-                                    limit_price=lost_profit,
-                                )
-                            )   
+            if current_price > current_SMA_20 and current_price > current_SMA_50 and current_engulfing > 0:
+                    print(f"Entering a Trade with stock {symbol} at price {current_price}")
+                    tradeing_client.submit_order(
+                        symbol=symbol,
+                        side='buy',
+                        type='market',
+                        qty='1',
+                        time_in_force='day',
+                        order_class='bracket',
+                        take_profit=dict(
+                            limit_price=take_profit,
+                        ),
+                        stop_loss=dict(
+                            stop_price=lost_profit,
+                            limit_price=lost_profit,
+                        )
+                    )   
 
                     
         
     print("Code Completed")
-sc.every(1).seconds.do(trade)
+sc.every(10).seconds.do(trade)
 
 while True:
     sc.run_pending()
     time.sleep(1)
-
 
