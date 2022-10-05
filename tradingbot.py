@@ -29,7 +29,8 @@ for row in rows:
 def trade():
     #get the current date 
     my_date = date.today()
-    
+    #when using the 200 sma it is nice to look further back
+    last_week = my_date - timedelta(days = 7)
     diff = max(1, (my_date.weekday() + 6) % 7 - 3)
     #calculate yesterda as business day
     yes_bid = my_date - timedelta(days=diff)
@@ -38,21 +39,26 @@ def trade():
     BASE_URL = config.URL_ENDPT
     x = 1
     #get active postions 
-    cursor.execute("""
-    SELECT stock FROM assets
-    """)
-    assets = []
-    stock_assets = cursor.fetchall()
-    for row in stock_assets:
-        asset = row['stock']
-        assets.append(asset)
+    x = 1
+
+
+
+
+
+
+
+    
+    tradeing_client = api.REST(config.API_Key, config.API_Secret, config.URL_ENDPT)
+    orders = tradeing_client.list_positions()  
+    order_symbols = [order.symbol for order in orders if x == 1]
 
     for symbol in symbols:
-        if symbol not in assets:
+        if symbol not in order_symbols:
             print(f"Symbol {symbol} does not have an active trade will look for trade to enter")
             
             #get price data from alpaca api
-            bars = yf.download(tickers = symbol,start=yes_bid, end=my_date, interval = '5m', rounding = True )
+            bars = yf.download(tickers = symbol,start=last_week, end=my_date, interval = '5m', rounding = True )
+            print(my_date)
             bars.head()
             # #put bars into np array
             price = [bar for bar in bars['Close'] if bar != "NaN"]
@@ -69,13 +75,13 @@ def trade():
             print("go here")
             if len(prices) > 51:
                 RSI = talib.RSI(prices,14)
-                SMA_20 = talib.SMA(prices, timeperiod=20)
+                SMA_200 = talib.SMA(prices, timeperiod=200)
                 SMA_50 = talib.SMA(prices, timeperiod=50)
             engulfing = talib.CDLENGULFING(opens, highs, lows, prices)
             
             # #Get the value of the most recent element in the np array.
-            length_sma_20 = (len(SMA_20))-1
-            current_SMA_20 = SMA_20[length_sma_20]
+            length_sma_200 = (len(SMA_200))-1
+            current_SMA_200 = SMA_200[length_sma_200]
             length_sma_50 = (len(SMA_50))-1
             current_SMA_50 = SMA_50[length_sma_50]
             length_RSI = (len(RSI))-1
@@ -90,14 +96,14 @@ def trade():
             #now that we have all the elements we need we can create the parameteres for the strat.
             print(f"current stock {symbol}")
             print(f"current Price: {current_price}")
-            print(f"current SMA 20: {current_SMA_20}")
+            print(f"current SMA 200: {current_SMA_200}")
             print(f"current SMA 50: {current_SMA_50}")
             print(f"current RSI 14: {current_RSI}")
             print(f"Candle patter: {current_engulfing}")
 
 
             #time to write the code that will conduct autotrading for me
-            if current_price > current_SMA_20 and current_price > current_SMA_50 and current_engulfing > 0:
+            if current_price > current_SMA_50 and current_price > current_SMA_200 and current_engulfing > 0:
                     print(f"Entering a Trade with stock {symbol} at price {current_price}")
                     tradeing_client.submit_order(
                         symbol=symbol,
@@ -118,7 +124,7 @@ def trade():
                     
         
     print("Code Completed")
-sc.every(10).seconds.do(trade)
+sc.every(1).seconds.do(trade)
 
 while True:
     sc.run_pending()

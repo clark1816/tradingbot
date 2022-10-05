@@ -44,32 +44,35 @@
             <input type="submit">
             </form>
 
-            <h2>Current Active Investments</h2>
-        <table class="ui striped table">
-            <thead>
-                <tr>
-                <th>Stock Tickers</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stock in assets%}
-                <tr>
-                    <td>{{ stock.stock }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            </table>
+            <h2>Active Investments</h2>
+            <table class="ui striped table">
+                <thead>
+                    <tr>
+                    <th>Stock Ticker</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders%}
+                    <tr>
+                        <td>{{order}}</td>
 
-            <h2>delete Asset from Active Investments</h2>
-            <form action="/delete_asset" method="post">
-                <input type="text" name="delete_stock">
-                <input type="submit">
-            </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
             
             <h2>Back Testing</h2>
-            <form action="/backtest" method="post">
+            <form action="/backtest2" method="post">
             <label for="fname">stock symbol:</label>
             <input type="text" id="fname" name="symbol"><br><br>
+            <label for="strat">Choose a strat:</label>
+            <select name="strat" id="strat">
+              <option value="BuyNHold">BuyNHold</option>
+              <option value="GoldenCross">GoldenCross</option>
+              <option value="PointAnFigure">Point&Figure</option>
+              <option value="Random">Random</option>
+            </select>
+            <br><br>
             <input type="submit">
             </form>
     </div>

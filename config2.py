@@ -6,7 +6,7 @@ import strategies
 
 cerebro = bt.Cerebro()
 
-data =yf.download('AAPL', start='2021-01-01', interval="1d",rounding = True)
+data =yf.download('SPY', start="2016-01-01", interval="1d",rounding = True)
 
 feed = bt.feeds.PandasData(dataname=data)
 
@@ -15,7 +15,7 @@ cerebro.adddata(feed)
 # print(feed)
 
 
-cerebro.addstrategy(strategies.MyStrategy)
+cerebro.addstrategy(strategies.PointAnFigure)
 print(cerebro.broker.getvalue())
 cerebro.run()
 print(cerebro.broker.getvalue())
