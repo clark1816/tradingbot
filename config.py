@@ -1,7 +1,7 @@
-API_Key = 'PKCBTE950NKJXQCEN8C2'
-API_Secret = 'MOQ3LYUrm8muw3R7rZQZN6Y6YtCQyafy7Z1RtmN0'
+API_Key = 'PKT9F4TADQRBJ446YL9M'
+API_Secret = 'eLlsSbEl3uoVTqolAbI1KaXzIQeU2RE53e2v37gI'
 URL_ENDPT = 'https://paper-api.alpaca.markets'
-
+Acc_URL = 'https://paper-api.alpaca.markets/v2/account'
 DB_FILE = 'app.db'
 
 DB_HOST = 'r58gi8iei8.fmkwkws5wu.tsdb.cloud.timescale.com'
